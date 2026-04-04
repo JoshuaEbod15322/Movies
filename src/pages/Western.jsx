@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Compass } from "lucide-react";
-import { discoverMovies } from "../services/tmdb";
+import { discoverMovies, fetchItemsWithCount } from "../services/tmdb";
 import MovieGrid from "../components/MovieGrid";
 import Pagination from "../components/Pagination";
 
@@ -14,12 +14,10 @@ export default function Western() {
     const fetchWestern = async () => {
       setLoading(true);
       try {
-        const params = {
-          page,
+        const data = await fetchItemsWithCount(discoverMovies, 42, page, {
           with_genres: "37",
           sort_by: "popularity.desc",
-        };
-        const data = await discoverMovies(params);
+        });
         setItems(data.results);
         setTotalPages(data.total_pages);
       } catch (error) {

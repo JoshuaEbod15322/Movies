@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
-import { discoverTV } from "../services/tmdb";
+import { discoverTV, fetchItemsWithCount } from "../services/tmdb";
 import MovieGrid from "../components/MovieGrid";
 import Pagination from "../components/Pagination";
 
@@ -14,13 +14,11 @@ export default function KDrama() {
     const fetchKDrama = async () => {
       setLoading(true);
       try {
-        const params = {
-          page,
+        const data = await fetchItemsWithCount(discoverTV, 42, page, {
           with_original_language: "ko",
           with_genres: "18",
           sort_by: "popularity.desc",
-        };
-        const data = await discoverTV(params);
+        });
         setItems(data.results);
         setTotalPages(data.total_pages);
       } catch (error) {

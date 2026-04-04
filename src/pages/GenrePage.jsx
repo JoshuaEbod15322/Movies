@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Filter } from "lucide-react";
-import { discoverMovies, discoverTV } from "../services/tmdb";
+import {
+  discoverMovies,
+  discoverTV,
+  fetchItemsWithCount,
+} from "../services/tmdb";
 import MovieGrid from "../components/MovieGrid";
 import Pagination from "../components/Pagination";
 import { cn } from "../lib/utils";
@@ -15,18 +19,18 @@ export default function GenrePage() {
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
+    setPage(1);
+  }, [genreId, type]);
+
+  useEffect(() => {
     const fetchGenreData = async () => {
       setLoading(true);
       try {
-        const params = {
-          page,
+        const fetchFn = type === "movie" ? discoverMovies : discoverTV;
+        const data = await fetchItemsWithCount(fetchFn, 24, page, {
           with_genres: genreId,
           sort_by: "popularity.desc",
-        };
-        const data =
-          type === "movie"
-            ? await discoverMovies(params)
-            : await discoverTV(params);
+        });
         setItems(data.results);
         setTotalPages(data.total_pages);
       } catch (error) {

@@ -15,6 +15,16 @@ export const TMDB_CONFIG = {
 
 export const fetchFromTMDB = async (endpoint, params = {}) => {
   try {
+    // Validate page parameter if present
+    if (params.page !== undefined) {
+      const page = Number(params.page);
+      if (isNaN(page) || page < 1 || page > 500) {
+        // Return empty results instead of throwing to avoid crashing the UI
+        return { results: [], total_pages: 0, total_results: 0 };
+      }
+      params.page = Math.floor(page);
+    }
+
     const queryParams = new URLSearchParams({
       api_key: API_KEY,
       ...params,
@@ -81,4 +91,74 @@ export const discoverTV = (params = {}) => {
 
 export const searchMulti = (query, page = 1) => {
   return fetchFromTMDB("/search/multi", { query, page });
+};
+
+export const getTrending = (timeWindow = "day", page = 1) => {
+  return fetchFromTMDB(`/trending/all/${timeWindow}`, { page });
+};
+
+export const getLatestMovies = (page = 1) => {
+  return fetchFromTMDB("/movie/now_playing", { page });
+};
+
+export const getLatestTVSeries = (page = 1) => {
+  return fetchFromTMDB("/tv/on_the_air", { page });
+};
+
+export const getLatestAnime = (page = 1) => {
+  return fetchFromTMDB("/discover/tv", {
+    page,
+    with_genres: "16",
+    with_original_language: "ja",
+    sort_by: "first_air_date.desc",
+  });
+};
+
+export const fetchItemsWithCount = async (
+  fetchFn,
+  count = 24,
+  page = 1,
+  params = {},
+) => {
+  // Ensure page is at least 1 and an integer
+  const safePage = Math.max(1, Math.floor(page));
+
+  const startItem = (safePage - 1) * count;
+  const endItem = safePage * count;
+
+  const startPage = Math.floor(startItem / 20) + 1;
+  const endPage = Math.floor((endItem - 1) / 20) + 1;
+
+  // TMDB has a limit of 500 pages
+  const pagesToFetch = [];
+  for (let p = startPage; p <= endPage; p++) {
+    if (p <= 500) {
+      pagesToFetch.push(p);
+    }
+  }
+
+  if (pagesToFetch.length === 0) {
+    return { results: [], total_pages: 0, total_results: 0 };
+  }
+
+  const results = await Promise.all(
+    pagesToFetch.map((p) => fetchFn({ ...params, page: p })),
+  );
+
+  const allResults = results.flatMap((r) => r.results);
+  const totalResults = results[0].total_results || 0;
+
+  // Calculate total pages based on our custom count, but cap at what TMDB can provide
+  // TMDB max items = 500 pages * 20 items = 10,000 items
+  const maxItems = Math.min(totalResults, 10000);
+  const totalPages = Math.ceil(maxItems / count);
+
+  const offset = startItem % 20;
+  const slicedResults = allResults.slice(offset, offset + count);
+
+  return {
+    results: slicedResults,
+    total_pages: totalPages,
+    total_results: totalResults,
+  };
 };

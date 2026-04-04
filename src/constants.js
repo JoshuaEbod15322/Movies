@@ -8,9 +8,9 @@ export const GENRES = [
   { id: 18, name: "Drama" },
   { id: 10751, name: "Family" },
   { id: 14, name: "Fantasy" },
-  { id: 36, name: "History" }, // Biography usually falls under History/Documentary in TMDB
+  { id: 36, name: "History" },
   { id: 27, name: "Horror" },
-  { id: 10402, name: "Music" }, // Musical
+  { id: 10402, name: "Music" },
   { id: 9648, name: "Mystery" },
   { id: 10749, name: "Romance" },
   { id: 878, name: "Science Fiction" },
@@ -22,7 +22,6 @@ export const GENRES = [
 
 export const CATEGORIES = [
   { id: "popular", name: "Popular" },
-  { id: "upcoming", name: "Upcoming" },
   { id: "now_playing", name: "Now Playing" },
   { id: "top_rated", name: "Top Rated" },
 ];

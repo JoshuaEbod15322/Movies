@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
-import { discoverTV } from "../services/tmdb";
+import { discoverTV, fetchItemsWithCount } from "../services/tmdb";
 import MovieGrid from "../components/MovieGrid";
 import Pagination from "../components/Pagination";
 
@@ -14,13 +14,11 @@ export default function Anime() {
     const fetchAnime = async () => {
       setLoading(true);
       try {
-        const params = {
-          page,
+        const data = await fetchItemsWithCount(discoverTV, 42, page, {
           with_genres: "16",
           with_original_language: "ja",
           sort_by: "popularity.desc",
-        };
-        const data = await discoverTV(params);
+        });
         setItems(data.results);
         setTotalPages(data.total_pages);
       } catch (error) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Film } from "lucide-react";
-import { discoverMovies } from "../services/tmdb";
+import { discoverMovies, fetchItemsWithCount } from "../services/tmdb";
 import MovieGrid from "../components/MovieGrid";
 import Pagination from "../components/Pagination";
 import { motion } from "motion/react";
@@ -15,11 +15,9 @@ export default function Movies() {
     const fetchMovies = async () => {
       setLoading(true);
       try {
-        const params = {
-          page,
+        const data = await fetchItemsWithCount(discoverMovies, 42, page, {
           sort_by: "popularity.desc",
-        };
-        const data = await discoverMovies(params);
+        });
         setMovies(data.results);
         setTotalPages(data.total_pages);
       } catch (error) {

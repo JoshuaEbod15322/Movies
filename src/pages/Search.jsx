@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search as SearchIcon } from "lucide-react";
-import { searchMulti } from "../services/tmdb";
+import { searchMulti, fetchItemsWithCount } from "../services/tmdb";
 import MovieGrid from "../components/MovieGrid";
 import Pagination from "../components/Pagination";
 
@@ -18,7 +18,11 @@ export default function Search() {
       if (!query) return;
       setLoading(true);
       try {
-        const data = await searchMulti(query, page);
+        const data = await fetchItemsWithCount(
+          (params) => searchMulti(query, params.page),
+          24,
+          page,
+        );
         // Filter to only include movies and tv shows
         const filtered = data.results.filter(
           (item) => item.media_type === "movie" || item.media_type === "tv",
