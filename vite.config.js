@@ -8,22 +8,28 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, ".", "");
   return {
     plugins: [react(), tailwindcss()],
-    define: {
-      "process.env.GEMINI_API_KEY": JSON.stringify(env.GEMINI_API_KEY),
-    },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL(".", import.meta.url)),
       },
     },
     build: {
-      minify: "esbuild", // Use esbuild for faster minification
-      sourcemap: false, // Disable sourcemaps for production
+      // minify: "esbuild",
+      sourcemap: false,
       rollupOptions: {
         output: {
-          manualChunks: {
-            vendor: ["react", "react-dom"],
-            ui: ["lucide-react", "framer-motion"],
+          // Changed from Object to Function to satisfy Vite 8 / Rolldown
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              if (id.includes("react") || id.includes("react-dom")) {
+                return "vendor";
+              }
+              if (id.includes("lucide-react") || id.includes("motion/react")) {
+                return "ui";
+              }
+              // Optional: Put all other dependencies into a generic vendor chunk
+              // return "vendor";
+            }
           },
         },
       },

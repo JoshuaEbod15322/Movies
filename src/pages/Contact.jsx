@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 import { Send, CheckCircle, AlertCircle } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export default function Contact() {
   const form = useRef();

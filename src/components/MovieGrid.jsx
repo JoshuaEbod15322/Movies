@@ -1,6 +1,6 @@
 import React from "react";
 import MovieCard from "./MovieCard";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export default function MovieGrid({ items, type = "movie", loading = false }) {
   if (loading) {
