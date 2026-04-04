@@ -145,7 +145,19 @@ export const fetchItemsWithCount = async (
     pagesToFetch.map((p) => fetchFn({ ...params, page: p })),
   );
 
+  // Combine results from all pages
   const allResults = results.flatMap((r) => r.results);
+
+  // Deduplicate results by ID to prevent React key warnings
+  const uniqueResults = [];
+  const seenIds = new Set();
+  for (const item of allResults) {
+    if (!seenIds.has(item.id)) {
+      seenIds.add(item.id);
+      uniqueResults.push(item);
+    }
+  }
+
   const totalResults = results[0].total_results || 0;
 
   // Calculate total pages based on our custom count, but cap at what TMDB can provide
@@ -154,7 +166,7 @@ export const fetchItemsWithCount = async (
   const totalPages = Math.ceil(maxItems / count);
 
   const offset = startItem % 20;
-  const slicedResults = allResults.slice(offset, offset + count);
+  const slicedResults = uniqueResults.slice(offset, offset + count);
 
   return {
     results: slicedResults,

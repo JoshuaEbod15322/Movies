@@ -27,7 +27,7 @@ export default function GenrePage() {
       setLoading(true);
       try {
         const fetchFn = type === "movie" ? discoverMovies : discoverTV;
-        const data = await fetchItemsWithCount(fetchFn, 24, page, {
+        const data = await fetchItemsWithCount(fetchFn, 100, page, {
           with_genres: genreId,
           sort_by: "popularity.desc",
         });

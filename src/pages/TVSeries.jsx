@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Tv } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import { Tv, ChevronDown } from "lucide-react";
 import { discoverTV, fetchItemsWithCount, getGenres } from "../services/tmdb";
 import MovieGrid from "../components/MovieGrid";
 import Pagination from "../components/Pagination";
@@ -12,6 +12,18 @@ export default function TVSeries() {
   const [totalPages, setTotalPages] = useState(1);
   const [genres, setGenres] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -36,7 +48,7 @@ export default function TVSeries() {
           params.with_genres = selectedGenre;
         }
 
-        const data = await fetchItemsWithCount(discoverTV, 24, page, params);
+        const data = await fetchItemsWithCount(discoverTV, 100, page, params);
         setSeries(data.results);
         setTotalPages(data.total_pages);
       } catch (error) {
@@ -66,32 +78,55 @@ export default function TVSeries() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-2 bg-white/5 p-1 rounded-full border border-white/10 overflow-x-auto no-scrollbar max-w-full md:max-w-2xl">
+          <div className="relative" ref={dropdownRef}>
             <button
-              onClick={() => handleGenreChange("")}
-              className={cn(
-                "px-6 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap",
-                selectedGenre === ""
-                  ? "bg-red-600 text-white"
-                  : "text-gray-400 hover:text-white",
-              )}
+              onClick={() => setIsOpen(!isOpen)}
+              className="flex items-center gap-3 bg-white/5 px-6 py-3 rounded-xl border border-white/10 hover:bg-white/10 transition-all min-w-[200px] justify-between"
             >
-              All
+              <span className="font-bold">
+                {selectedGenre
+                  ? genres.find((g) => g.id.toString() === selectedGenre)?.name
+                  : "All Genres"}
+              </span>
+              <ChevronDown
+                className={cn("transition-transform", isOpen && "rotate-180")}
+                size={20}
+              />
             </button>
-            {genres.map((genre) => (
-              <button
-                key={genre.id}
-                onClick={() => handleGenreChange(genre.id.toString())}
-                className={cn(
-                  "px-6 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap",
-                  selectedGenre === genre.id.toString()
-                    ? "bg-red-600 text-white"
-                    : "text-gray-400 hover:text-white",
-                )}
-              >
-                {genre.name}
-              </button>
-            ))}
+
+            {isOpen && (
+              <div className="absolute top-full right-0 mt-2 w-64 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl z-50 py-2 max-h-96 overflow-y-auto no-scrollbar">
+                <button
+                  onClick={() => {
+                    handleGenreChange("");
+                    setIsOpen(false);
+                  }}
+                  className={cn(
+                    "w-full text-left px-6 py-3 text-sm font-bold transition-all hover:bg-white/5",
+                    selectedGenre === "" ? "text-red-600" : "text-gray-400",
+                  )}
+                >
+                  All Genres
+                </button>
+                {genres.map((genre) => (
+                  <button
+                    key={genre.id}
+                    onClick={() => {
+                      handleGenreChange(genre.id.toString());
+                      setIsOpen(false);
+                    }}
+                    className={cn(
+                      "w-full text-left px-6 py-3 text-sm font-bold transition-all hover:bg-white/5",
+                      selectedGenre === genre.id.toString()
+                        ? "text-red-600"
+                        : "text-gray-400",
+                    )}
+                  >
+                    {genre.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

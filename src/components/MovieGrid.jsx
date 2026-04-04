@@ -26,9 +26,19 @@ export default function MovieGrid({ items, type = "movie", loading = false }) {
     );
   }
 
+  // Deduplicate items by ID to prevent React key warnings
+  const uniqueItems = [];
+  const seenIds = new Set();
+  for (const item of items) {
+    if (!seenIds.has(item.id)) {
+      seenIds.add(item.id);
+      uniqueItems.push(item);
+    }
+  }
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-      {items.map((item, index) => (
+      {uniqueItems.map((item, index) => (
         <motion.div
           key={item.id}
           initial={{ opacity: 0, y: 20 }}

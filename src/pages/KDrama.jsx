@@ -14,7 +14,7 @@ export default function KDrama() {
     const fetchKDrama = async () => {
       setLoading(true);
       try {
-        const data = await fetchItemsWithCount(discoverTV, 42, page, {
+        const data = await fetchItemsWithCount(discoverTV, 100, page, {
           with_original_language: "ko",
           with_genres: "18",
           sort_by: "popularity.desc",
