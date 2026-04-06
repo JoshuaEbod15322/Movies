@@ -13,6 +13,7 @@ import Search from "./pages/Search";
 import GenrePage from "./pages/GenrePage";
 import Watch from "./pages/Watch";
 import Contact from "./pages/Contact";
+import ScrollToTop from "./components/ScrollToTop";
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
           </Routes>
         </main>
         <Footer />
+        <ScrollToTop />
       </div>
     </Router>
   );

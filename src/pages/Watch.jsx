@@ -9,6 +9,8 @@ import {
   Users,
   Film,
   List,
+  Search,
+  ChevronDown,
 } from "lucide-react";
 import {
   getMovieDetails,
@@ -19,6 +21,7 @@ import {
 import VideoPlayer from "../components/VideoPlayer";
 import { motion } from "motion/react";
 import { cn } from "../lib/utils";
+import CustomDropdown from "../components/CustomDropdown";
 
 import MovieGrid from "../components/MovieGrid";
 
@@ -31,11 +34,14 @@ export default function Watch() {
   const [item, setItem] = useState(null);
   const [seasonData, setSeasonData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [loadingEpisodes, setLoadingEpisodes] = useState(false);
+  const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'list'
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      setError(null);
       try {
         let data;
         let actualType = type;
@@ -80,6 +86,9 @@ export default function Watch() {
         }
       } catch (error) {
         console.error("Error fetching details:", error);
+        setError(
+          "Failed to load content. Please check your connection or try again later.",
+        );
       } finally {
         setLoading(false);
       }
@@ -119,6 +128,26 @@ export default function Watch() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 text-center">
+        <div className="bg-red-600/10 border border-red-600/20 p-8 rounded-2xl max-w-md">
+          <Film className="text-red-600 mx-auto mb-4" size={48} />
+          <h2 className="text-2xl font-black mb-2 uppercase tracking-tighter">
+            Oops!
+          </h2>
+          <p className="text-gray-400 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-full font-bold transition-all"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!item) return null;
 
   const title = item.title || item.name;
@@ -138,7 +167,7 @@ export default function Watch() {
             className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-bold"
           >
             <ChevronLeft size={18} />
-            Back
+            Back to Details
           </Link>
         </div>
 
@@ -169,77 +198,251 @@ export default function Watch() {
         {/* TV Episodes Section */}
         {type === "tv" && item.number_of_seasons > 0 && (
           <div className="mb-16">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <List className="text-red-600" size={24} />
-                <h2 className="text-2xl font-black tracking-tighter uppercase">
-                  Episodes
-                </h2>
-              </div>
-              <select
-                value={season}
-                onChange={(e) => handleSeasonChange(Number(e.target.value))}
-                className="bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm font-bold outline-none focus:border-red-600 transition-all"
-              >
-                {item.seasons?.map((s) => (
-                  <option
-                    key={s.id}
-                    value={s.season_number}
-                    className="bg-gray-900"
+            <div className="flex flex-col gap-6 mb-8">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <List className="text-red-600" size={24} />
+                  <h2 className="text-2xl font-black tracking-tighter uppercase">
+                    Episodes
+                  </h2>
+                </div>
+
+                <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={cn(
+                      "px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all",
+                      viewMode === "grid"
+                        ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
+                        : "text-gray-400 hover:text-white",
+                    )}
                   >
-                    {s.name || `Season ${s.season_number}`}
-                  </option>
-                ))}
-              </select>
+                    Grid
+                  </button>
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={cn(
+                      "px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest transition-all",
+                      viewMode === "list"
+                        ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
+                        : "text-gray-400 hover:text-white",
+                    )}
+                  >
+                    List
+                  </button>
+                </div>
+              </div>
+
+              <div className="w-full md:w-64">
+                <CustomDropdown
+                  value={season}
+                  options={
+                    item.seasons?.map((s) => ({
+                      value: s.season_number,
+                      label: s.name || `Season ${s.season_number}`,
+                    })) || []
+                  }
+                  onChange={handleSeasonChange}
+                  placeholder="Select Season"
+                />
+              </div>
             </div>
 
             {loadingEpisodes ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {[...Array(4)].map((_, i) => (
+              <div
+                className={cn(
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                    : "flex flex-col gap-2",
+                )}
+              >
+                {[...Array(viewMode === "grid" ? 4 : 8)].map((_, i) => (
                   <div
                     key={i}
-                    className="h-24 bg-white/5 rounded-xl animate-pulse"
+                    className={cn(
+                      "bg-white/5 rounded-xl animate-pulse",
+                      viewMode === "grid" ? "h-24" : "h-12",
+                    )}
                   />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div
+                className={cn(
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                    : "flex flex-col gap-2",
+                )}
+              >
                 {seasonData?.episodes?.map((ep) => (
                   <button
                     key={ep.id}
                     onClick={() => handleEpisodeClick(ep.episode_number)}
                     className={cn(
-                      "flex flex-col gap-3 p-3 rounded-xl border transition-all text-left group",
+                      "flex rounded-xl border transition-all text-left group overflow-hidden",
+                      viewMode === "grid"
+                        ? "flex-col p-3 gap-3"
+                        : "items-center p-2 gap-4",
                       episode === ep.episode_number
                         ? "bg-red-600/10 border-red-600/50"
                         : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20",
                     )}
                   >
-                    <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-800">
-                      {ep.still_path ? (
-                        <img
-                          src={`${TMDB_CONFIG.IMAGE_BASE_URL}/w300${ep.still_path}`}
-                          alt={ep.name}
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Play size={24} className="text-gray-600" />
+                    {viewMode === "grid" ? (
+                      <>
+                        <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-zinc-900 flex items-center justify-center">
+                          {ep.still_path ? (
+                            <img
+                              src={`${TMDB_CONFIG.IMAGE_BASE_URL}/w300${ep.still_path}`}
+                              alt={ep.name}
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                                e.target.nextSibling.style.display = "flex";
+                              }}
+                            />
+                          ) : null}
+                          <div
+                            className={cn(
+                              "absolute inset-0 flex items-center justify-center bg-zinc-800",
+                              ep.still_path ? "hidden" : "flex",
+                            )}
+                          >
+                            <Play size={24} className="text-gray-600" />
+                          </div>
+                          <div
+                            className={cn(
+                              "absolute inset-0 flex items-center justify-center transition-opacity",
+                              episode === ep.episode_number
+                                ? "bg-red-600/40 opacity-100"
+                                : "bg-black/40 opacity-0 group-hover:opacity-100",
+                            )}
+                          >
+                            {episode === ep.episode_number ? (
+                              <div className="flex flex-col items-center gap-1">
+                                <div className="flex gap-0.5 items-end h-4">
+                                  <div
+                                    className="w-1 bg-white animate-[bounce_1s_infinite_0ms]"
+                                    style={{ height: "60%" }}
+                                  />
+                                  <div
+                                    className="w-1 bg-white animate-[bounce_1s_infinite_200ms]"
+                                    style={{ height: "100%" }}
+                                  />
+                                  <div
+                                    className="w-1 bg-white animate-[bounce_1s_infinite_400ms]"
+                                    style={{ height: "80%" }}
+                                  />
+                                </div>
+                                <span className="text-[8px] font-black uppercase tracking-tighter text-white">
+                                  Playing
+                                </span>
+                              </div>
+                            ) : (
+                              <Play
+                                size={24}
+                                className="fill-current text-white"
+                              />
+                            )}
+                          </div>
                         </div>
-                      )}
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Play size={24} className="fill-current text-white" />
-                      </div>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-0.5">
-                        Episode {ep.episode_number}
-                      </p>
-                      <h4 className="text-sm font-bold text-white line-clamp-1 group-hover:text-red-500 transition-colors">
-                        {ep.name}
-                      </h4>
-                    </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest">
+                              Episode {ep.episode_number}
+                            </p>
+                            <p className="text-[10px] text-gray-500 font-bold">
+                              {ep.air_date
+                                ? new Date(ep.air_date).toLocaleDateString()
+                                : ""}
+                            </p>
+                          </div>
+                          <h4
+                            className={cn(
+                              "text-sm font-bold line-clamp-1 transition-colors mb-1",
+                              episode === ep.episode_number
+                                ? "text-red-500"
+                                : "text-white group-hover:text-red-500",
+                            )}
+                          >
+                            {ep.name}
+                          </h4>
+                          {ep.overview && (
+                            <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
+                              {ep.overview}
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div
+                          className={cn(
+                            "flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-xs font-black border transition-all",
+                            episode === ep.episode_number
+                              ? "bg-red-600 text-white border-red-600"
+                              : "bg-white/5 text-red-600 border-white/10 group-hover:bg-red-600 group-hover:text-white",
+                          )}
+                        >
+                          {episode === ep.episode_number ? (
+                            <div className="flex gap-0.5 items-end h-3">
+                              <div
+                                className="w-0.5 bg-white animate-[bounce_1s_infinite_0ms]"
+                                style={{ height: "60%" }}
+                              />
+                              <div
+                                className="w-0.5 bg-white animate-[bounce_1s_infinite_200ms]"
+                                style={{ height: "100%" }}
+                              />
+                              <div
+                                className="w-0.5 bg-white animate-[bounce_1s_infinite_400ms]"
+                                style={{ height: "80%" }}
+                              />
+                            </div>
+                          ) : (
+                            ep.episode_number
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-grow">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <h4
+                              className={cn(
+                                "text-sm font-bold line-clamp-1 transition-colors",
+                                episode === ep.episode_number
+                                  ? "text-red-500"
+                                  : "text-white group-hover:text-red-500",
+                              )}
+                            >
+                              {ep.name}
+                            </h4>
+                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                              •{" "}
+                              {ep.air_date
+                                ? new Date(ep.air_date).toLocaleDateString()
+                                : ""}
+                            </span>
+                          </div>
+                          {ep.overview && (
+                            <p className="text-[11px] text-gray-400 line-clamp-1 leading-relaxed">
+                              {ep.overview}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex-shrink-0 pr-2">
+                          {episode === ep.episode_number ? (
+                            <span className="text-[10px] font-black text-red-600 uppercase tracking-widest">
+                              Now Playing
+                            </span>
+                          ) : (
+                            <Play
+                              size={16}
+                              className="text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                            />
+                          )}
+                        </div>
+                      </>
+                    )}
                   </button>
                 ))}
               </div>
@@ -257,20 +460,33 @@ export default function Watch() {
           </div>
           <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
             {cast.map((person) => (
-              <div key={person.id} className="flex-shrink-0 w-24 text-center">
-                <div className="w-24 h-24 rounded-full overflow-hidden mb-3 border-2 border-white/10">
-                  <img
-                    src={
-                      person.profile_path
-                        ? `${TMDB_CONFIG.IMAGE_BASE_URL}/${TMDB_CONFIG.PROFILE_SIZE}${person.profile_path}`
-                        : "https://via.placeholder.com/185x278?text=No+Image"
-                    }
-                    alt={person.name}
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
+              <div
+                key={person.id}
+                className="flex-shrink-0 w-24 text-center group"
+              >
+                <div className="w-24 h-24 rounded-full overflow-hidden mb-3 border-2 border-white/10 relative bg-zinc-900 flex items-center justify-center">
+                  {person.profile_path ? (
+                    <img
+                      src={`${TMDB_CONFIG.IMAGE_BASE_URL}/${TMDB_CONFIG.PROFILE_SIZE}${person.profile_path}`}
+                      alt={person.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        e.target.nextSibling.style.display = "flex";
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className={cn(
+                      "absolute inset-0 flex items-center justify-center bg-zinc-800 text-white font-black text-2xl uppercase",
+                      person.profile_path ? "hidden" : "flex",
+                    )}
+                  >
+                    {person.name.charAt(0)}
+                  </div>
                 </div>
-                <p className="text-xs font-bold text-white line-clamp-1">
+                <p className="text-xs font-bold text-white line-clamp-1 group-hover:text-red-500 transition-colors">
                   {person.name}
                 </p>
                 <p className="text-[10px] text-gray-500 line-clamp-1">

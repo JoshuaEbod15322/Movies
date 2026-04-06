@@ -4,7 +4,7 @@ import { cn } from "../lib/utils";
 
 export default function Pagination({ currentPage, totalPages, onPageChange }) {
   const maxPagesToShow = 5;
-  const total = Math.min(totalPages, 500); // TMDB limits to 500 pages for most requests
+  const total = Math.min(totalPages, 500);
 
   const getPageNumbers = () => {
     const pages = [];

@@ -94,7 +94,7 @@ export default function Navbar() {
                 placeholder="Search movies, TV shows..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-white/10 border border-white/20 rounded-full py-1.5 pl-10 pr-4 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent w-64 transition-all"
+                className="bg-white/10 border border-white/20 rounded-full py-1.5 pl-10 pr-4 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent w-90 transition-all"
               />
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"

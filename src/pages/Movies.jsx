@@ -9,6 +9,7 @@ import MovieGrid from "../components/MovieGrid";
 import Pagination from "../components/Pagination";
 import { motion } from "motion/react";
 import { cn } from "../lib/utils";
+import CustomDropdown from "../components/CustomDropdown";
 
 export default function Movies() {
   const [movies, setMovies] = useState([]);
@@ -17,18 +18,6 @@ export default function Movies() {
   const [totalPages, setTotalPages] = useState(1);
   const [genres, setGenres] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -55,7 +44,7 @@ export default function Movies() {
 
         const data = await fetchItemsWithCount(
           discoverMovies,
-          100,
+          84,
           page,
           params,
         );
@@ -88,55 +77,19 @@ export default function Movies() {
             </h1>
           </div>
 
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="flex items-center gap-3 bg-white/5 px-6 py-3 rounded-xl border border-white/10 hover:bg-white/10 transition-all min-w-[200px] justify-between"
-            >
-              <span className="font-bold">
-                {selectedGenre
-                  ? genres.find((g) => g.id.toString() === selectedGenre)?.name
-                  : "All Genres"}
-              </span>
-              <ChevronDown
-                className={cn("transition-transform", isOpen && "rotate-180")}
-                size={20}
-              />
-            </button>
-
-            {isOpen && (
-              <div className="absolute top-full right-0 mt-2 w-64 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl z-50 py-2 max-h-96 overflow-y-auto no-scrollbar">
-                <button
-                  onClick={() => {
-                    handleGenreChange("");
-                    setIsOpen(false);
-                  }}
-                  className={cn(
-                    "w-full text-left px-6 py-3 text-sm font-bold transition-all hover:bg-white/5",
-                    selectedGenre === "" ? "text-red-600" : "text-gray-400",
-                  )}
-                >
-                  All Genres
-                </button>
-                {genres.map((genre) => (
-                  <button
-                    key={genre.id}
-                    onClick={() => {
-                      handleGenreChange(genre.id.toString());
-                      setIsOpen(false);
-                    }}
-                    className={cn(
-                      "w-full text-left px-6 py-3 text-sm font-bold transition-all hover:bg-white/5",
-                      selectedGenre === genre.id.toString()
-                        ? "text-red-600"
-                        : "text-gray-400",
-                    )}
-                  >
-                    {genre.name}
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="w-full md:w-64">
+            <CustomDropdown
+              value={selectedGenre}
+              options={[
+                { value: "", label: "All Genres" },
+                ...genres.map((g) => ({
+                  value: g.id.toString(),
+                  label: g.name,
+                })),
+              ]}
+              onChange={handleGenreChange}
+              placeholder="Select Genre"
+            />
           </div>
         </div>
 

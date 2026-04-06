@@ -156,6 +156,14 @@ export default function MovieDetails() {
                     {type === "tv" ? "Series" : `${runtime}m`}
                   </p>
                 </div>
+                {item.adult && (
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">
+                      Rating
+                    </p>
+                    <p className="font-bold text-red-600">18+</p>
+                  </div>
+                )}
               </div>
 
               <Link
@@ -223,20 +231,33 @@ export default function MovieDetails() {
           </div>
           <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
             {cast.map((person) => (
-              <div key={person.id} className="flex-shrink-0 w-24 text-center">
-                <div className="w-24 h-24 rounded-full overflow-hidden mb-3 border-2 border-white/10">
-                  <img
-                    src={
-                      person.profile_path
-                        ? `${TMDB_CONFIG.IMAGE_BASE_URL}/${TMDB_CONFIG.PROFILE_SIZE}${person.profile_path}`
-                        : "https://via.placeholder.com/185x278?text=No+Image"
-                    }
-                    alt={person.name}
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
+              <div
+                key={person.id}
+                className="flex-shrink-0 w-24 text-center group"
+              >
+                <div className="w-24 h-24 rounded-full overflow-hidden mb-3 border-2 border-white/10 relative bg-zinc-900 flex items-center justify-center">
+                  {person.profile_path ? (
+                    <img
+                      src={`${TMDB_CONFIG.IMAGE_BASE_URL}/${TMDB_CONFIG.PROFILE_SIZE}${person.profile_path}`}
+                      alt={person.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        e.target.nextSibling.style.display = "flex";
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className={cn(
+                      "absolute inset-0 flex items-center justify-center bg-zinc-800 text-white font-black text-2xl uppercase",
+                      person.profile_path ? "hidden" : "flex",
+                    )}
+                  >
+                    {person.name.charAt(0)}
+                  </div>
                 </div>
-                <p className="text-xs font-bold text-white line-clamp-1">
+                <p className="text-xs font-bold text-white line-clamp-1 group-hover:text-red-500 transition-colors">
                   {person.name}
                 </p>
                 <p className="text-[10px] text-gray-500 line-clamp-1">

@@ -14,7 +14,7 @@ export default function Anime() {
     const fetchAnime = async () => {
       setLoading(true);
       try {
-        const data = await fetchItemsWithCount(discoverTV, 100, page, {
+        const data = await fetchItemsWithCount(discoverTV, 84, page, {
           with_genres: "16",
           with_original_language: "ja",
           sort_by: "popularity.desc",

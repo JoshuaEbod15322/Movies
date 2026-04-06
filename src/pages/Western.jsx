@@ -14,7 +14,7 @@ export default function Western() {
     const fetchWestern = async () => {
       setLoading(true);
       try {
-        const data = await fetchItemsWithCount(discoverMovies, 100, page, {
+        const data = await fetchItemsWithCount(discoverMovies, 84, page, {
           with_genres: "37",
           sort_by: "popularity.desc",
         });

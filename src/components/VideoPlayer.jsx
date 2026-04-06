@@ -3,7 +3,7 @@ import { Play, Settings, Maximize, ExternalLink } from "lucide-react";
 import { cn } from "../lib/utils";
 
 export default function VideoPlayer({ id, type = "movie", season, episode }) {
-  const [source, setSource] = useState("vidsrc"); // 'vidsrc', 'vidlink', 'videasy', 'moviesapi'
+  const [source, setSource] = useState("vidsrc");
 
   const getEmbedUrl = () => {
     switch (source) {
@@ -23,6 +23,10 @@ export default function VideoPlayer({ id, type = "movie", season, episode }) {
         return type === "movie"
           ? `https://moviesapi.club/movie/${id}`
           : `https://moviesapi.club/tv/${id}-${season}-${episode}`;
+      case "2embed":
+        return type === "movie"
+          ? `https://www.2embed.cc/embed/${id}`
+          : `https://www.2embed.cc/embed/tv?tmdb=${id}&s=${season}&e=${episode}`;
       default:
         return "";
     }
@@ -91,6 +95,17 @@ export default function VideoPlayer({ id, type = "movie", season, episode }) {
                 )}
               >
                 MoviesAPI
+              </button>
+              <button
+                onClick={() => setSource("2embed")}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-xs font-bold transition-all",
+                  source === "2embed"
+                    ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
+                    : "text-gray-400 hover:text-white",
+                )}
+              >
+                2Embed
               </button>
             </div>
           </div>
