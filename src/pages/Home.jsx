@@ -6,6 +6,9 @@ import {
   TrendingUp,
   ChevronLeft,
   ChevronRight,
+  Film,
+  Tv,
+  Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -21,7 +24,7 @@ import MovieGrid from "../components/MovieGrid";
 import { CATEGORIES } from "../constants";
 import { cn } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
-import { Film, Tv, Sparkles } from "lucide-react";
+import TopListModal from "../components/TopListModal";
 
 export default function Home() {
   const [heroMovies, setHeroMovies] = useState([]);
@@ -33,11 +36,26 @@ export default function Home() {
   const [latestAnime, setLatestAnime] = useState([]);
   const [activeCategory, setActiveCategory] = useState("popular");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [sectionsLoading, setSectionsLoading] = useState(true);
+
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalItems, setModalItems] = useState([]);
+  const [modalType, setModalType] = useState("movie");
+
+  const openModal = (title, items, type = "movie") => {
+    setModalTitle(title);
+    setModalItems(items);
+    setModalType(type);
+    setIsModalOpen(true);
+  };
 
   useEffect(() => {
     const fetchHomeData = async () => {
       setLoading(true);
+      setError(null);
       try {
         const popular = await getMovies("popular");
         setHeroMovies(popular.results.slice(0, 5));
@@ -49,6 +67,9 @@ export default function Home() {
         setMovies(data.results);
       } catch (error) {
         console.error("Error fetching home data:", error);
+        setError(
+          "Failed to load content. Please check your connection or try again later.",
+        );
       } finally {
         setLoading(false);
       }
@@ -98,6 +119,26 @@ export default function Home() {
       (prev) => (prev - 1 + heroMovies.length) % heroMovies.length,
     );
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 text-center">
+        <div className="bg-red-600/10 border border-red-600/20 p-8 rounded-2xl max-w-md">
+          <Film className="text-red-600 mx-auto mb-4" size={48} />
+          <h2 className="text-2xl font-black mb-2 uppercase tracking-tighter">
+            Oops!
+          </h2>
+          <p className="text-gray-400 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-full font-bold transition-all"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Hero Carousel */}
@@ -118,6 +159,9 @@ export default function Home() {
                   alt={heroMovies[currentIndex].title}
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black via-black/20 to-transparent" />
@@ -234,47 +278,92 @@ export default function Home() {
 
       {/* Trending Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/5">
-        <div className="flex items-center gap-3 mb-12">
-          <TrendingUp className="text-red-600" size={32} />
-          <h2 className="text-3xl font-black tracking-tighter uppercase">
-            Trending Today
-          </h2>
+        <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center gap-3">
+            <TrendingUp className="text-red-600" size={32} />
+            <h2 className="text-3xl font-black tracking-tighter uppercase">
+              Trending Today
+            </h2>
+          </div>
+          <button
+            onClick={() => openModal("Trending Today", trending)}
+            className="flex items-center gap-2 text-red-600 font-bold uppercase tracking-widest text-sm hover:text-red-500 transition-colors"
+          >
+            See More
+            <ChevronRight size={18} />
+          </button>
         </div>
         <MovieGrid items={trending} loading={sectionsLoading} />
       </div>
 
       {/* Latest Movies Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/5">
-        <div className="flex items-center gap-3 mb-12">
-          <Film className="text-red-600" size={32} />
-          <h2 className="text-3xl font-black tracking-tighter uppercase">
-            Latest Movies
-          </h2>
+        <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center gap-3">
+            <Film className="text-red-600" size={32} />
+            <h2 className="text-3xl font-black tracking-tighter uppercase">
+              Latest Movies
+            </h2>
+          </div>
+          <button
+            onClick={() => openModal("Latest Movies", latestMovies)}
+            className="flex items-center gap-2 text-red-600 font-bold uppercase tracking-widest text-sm hover:text-red-500 transition-colors"
+          >
+            See More
+            <ChevronRight size={18} />
+          </button>
         </div>
         <MovieGrid items={latestMovies} loading={sectionsLoading} />
       </div>
 
       {/* Latest TV Series Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/5">
-        <div className="flex items-center gap-3 mb-12">
-          <Tv className="text-red-600" size={32} />
-          <h2 className="text-3xl font-black tracking-tighter uppercase">
-            Latest TV Series
-          </h2>
+        <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center gap-3">
+            <Tv className="text-red-600" size={32} />
+            <h2 className="text-3xl font-black tracking-tighter uppercase">
+              Latest TV Series
+            </h2>
+          </div>
+          <button
+            onClick={() => openModal("Latest TV Series", latestTV, "tv")}
+            className="flex items-center gap-2 text-red-600 font-bold uppercase tracking-widest text-sm hover:text-red-500 transition-colors"
+          >
+            See More
+            <ChevronRight size={18} />
+          </button>
         </div>
         <MovieGrid items={latestTV} type="tv" loading={sectionsLoading} />
       </div>
 
       {/* Latest Anime Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-white/5">
-        <div className="flex items-center gap-3 mb-12">
-          <Sparkles className="text-red-600" size={32} />
-          <h2 className="text-3xl font-black tracking-tighter uppercase">
-            Latest Anime
-          </h2>
+        <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center gap-3">
+            <Sparkles className="text-red-600" size={32} />
+            <h2 className="text-3xl font-black tracking-tighter uppercase">
+              Latest Anime
+            </h2>
+          </div>
+          <button
+            onClick={() => openModal("Latest Anime", latestAnime, "tv")}
+            className="flex items-center gap-2 text-red-600 font-bold uppercase tracking-widest text-sm hover:text-red-500 transition-colors"
+          >
+            See More
+            <ChevronRight size={18} />
+          </button>
         </div>
         <MovieGrid items={latestAnime} type="tv" loading={sectionsLoading} />
       </div>
+
+      {/* Top List Modal */}
+      <TopListModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalTitle}
+        items={modalItems}
+        type={modalType}
+      />
     </div>
   );
 }

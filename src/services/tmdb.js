@@ -89,13 +89,13 @@ export const getTVSeries = (type = "popular", page = 1) => {
 
 export const getMovieDetails = (id) => {
   return fetchFromTMDB(`/movie/${id}`, {
-    append_to_response: "credits,videos,recommendations",
+    append_to_response: "credits,videos,recommendations,external_ids",
   });
 };
 
 export const getTVDetails = (id) => {
   return fetchFromTMDB(`/tv/${id}`, {
-    append_to_response: "credits,videos,recommendations",
+    append_to_response: "credits,videos,recommendations,external_ids",
   });
 };
 
@@ -154,7 +154,7 @@ export const getLatestAnime = (page = 1) => {
 
 export const fetchItemsWithCount = async (
   fetchFn,
-  count = 84,
+  count = 96,
   page = 1,
   params = {},
 ) => {

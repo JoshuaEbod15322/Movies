@@ -2,8 +2,14 @@ import React, { useState } from "react";
 import { Play, Settings, Maximize, ExternalLink } from "lucide-react";
 import { cn } from "../lib/utils";
 
-export default function VideoPlayer({ id, type = "movie", season, episode }) {
-  const [source, setSource] = useState("vidsrc");
+export default function VideoPlayer({
+  id,
+  imdbId,
+  type = "movie",
+  season,
+  episode,
+}) {
+  const [source, setSource] = useState("vidsrc"); // 'vidsrc', 'vidlink', 'videasy', 'moviesapi'
 
   const getEmbedUrl = () => {
     switch (source) {
@@ -27,6 +33,22 @@ export default function VideoPlayer({ id, type = "movie", season, episode }) {
         return type === "movie"
           ? `https://www.2embed.cc/embed/${id}`
           : `https://www.2embed.cc/embed/tv?tmdb=${id}&s=${season}&e=${episode}`;
+      case "vidstreaming":
+        return type === "movie"
+          ? `https://vidsrc.xyz/embed/movie/${id}`
+          : `https://vidsrc.xyz/embed/tv/${id}/${season}/${episode}`;
+      case "vidcloud":
+        return type === "movie"
+          ? `https://vidsrc.me/embed/movie?tmdb=${id}`
+          : `https://vidsrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`;
+      case "vidsrc_cc":
+        return type === "movie"
+          ? `https://vidsrc.cc/v2/embed/movie/${id}`
+          : `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}`;
+      case "vidsrc_pm":
+        return type === "movie"
+          ? `https://vidsrc.pm/v2/embed/movie/${id}`
+          : `https://vidsrc.pm/v2/embed/tv/${id}/${season}/${episode}`;
       default:
         return "";
     }
@@ -106,6 +128,50 @@ export default function VideoPlayer({ id, type = "movie", season, episode }) {
                 )}
               >
                 2Embed
+              </button>
+              <button
+                onClick={() => setSource("vidstreaming")}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-xs font-bold transition-all",
+                  source === "vidstreaming"
+                    ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
+                    : "text-gray-400 hover:text-white",
+                )}
+              >
+                Vidstreaming
+              </button>
+              <button
+                onClick={() => setSource("vidcloud")}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-xs font-bold transition-all",
+                  source === "vidcloud"
+                    ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
+                    : "text-gray-400 hover:text-white",
+                )}
+              >
+                VidCloud
+              </button>
+              <button
+                onClick={() => setSource("vidsrc_cc")}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-xs font-bold transition-all",
+                  source === "vidsrc_cc"
+                    ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
+                    : "text-gray-400 hover:text-white",
+                )}
+              >
+                VidSrc.cc
+              </button>
+              <button
+                onClick={() => setSource("vidsrc_pm")}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-xs font-bold transition-all",
+                  source === "vidsrc_pm"
+                    ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
+                    : "text-gray-400 hover:text-white",
+                )}
+              >
+                VidSrc.pm
               </button>
             </div>
           </div>

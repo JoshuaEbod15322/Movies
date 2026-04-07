@@ -32,6 +32,7 @@ export default function Watch() {
   const episode = Number(searchParams.get("e")) || 1;
 
   const [item, setItem] = useState(null);
+  const [resolvedType, setResolvedType] = useState(type);
   const [seasonData, setSeasonData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,6 +67,7 @@ export default function Watch() {
         }
 
         setItem(data);
+        setResolvedType(actualType);
         if (actualType === "tv") {
           // Check if the requested season exists, otherwise use the first available
           const availableSeasons = data.seasons || [];
@@ -173,7 +175,13 @@ export default function Watch() {
 
         {/* Video Player Section */}
         <div className="mb-12">
-          <VideoPlayer id={id} type={type} season={season} episode={episode} />
+          <VideoPlayer
+            id={id}
+            imdbId={item.external_ids?.imdb_id}
+            type={resolvedType}
+            season={season}
+            episode={episode}
+          />
 
           <div className="mt-8">
             <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2">
