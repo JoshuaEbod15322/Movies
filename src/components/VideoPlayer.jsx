@@ -33,22 +33,23 @@ export default function VideoPlayer({
         return type === "movie"
           ? `https://www.2embed.cc/embed/${id}`
           : `https://www.2embed.cc/embed/tv?tmdb=${id}&s=${season}&e=${episode}`;
-      case "vidstreaming":
-        return type === "movie"
-          ? `https://vidsrc.xyz/embed/movie/${id}`
-          : `https://vidsrc.xyz/embed/tv/${id}/${season}/${episode}`;
-      case "vidcloud":
-        return type === "movie"
-          ? `https://vidsrc.me/embed/movie?tmdb=${id}`
-          : `https://vidsrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}`;
+      // case "vidstreaming":
+      //   return type === "movie"
+      //     ? `https://vidstream.cc/embed/movie/${id}`
+      //     : `https://vidstream.cc/embed/tv/${id}/${season}/${episode}`;
+
+      // case "vidcloud":
+      //   return type === "movie"
+      //     ? `https://vidcloud.sbs/embed/movie/${id}`
+      //     : `https://vidcloud.sbs/embed/tv/${id}/${season}/${episode}`;
       case "vidsrc_cc":
         return type === "movie"
           ? `https://vidsrc.cc/v2/embed/movie/${id}`
           : `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}`;
-      case "vidsrc_pm":
-        return type === "movie"
-          ? `https://vidsrc.pm/v2/embed/movie/${id}`
-          : `https://vidsrc.pm/v2/embed/tv/${id}/${season}/${episode}`;
+      // case "vidsrc_pm":
+      //   return type === "movie"
+      //     ? `https://vidsrc.pm/v2/embed/movie/${id}`
+      //     : `https://vidsrc.pm/v2/embed/tv/${id}/${season}/${episode}`;
       default:
         return "";
     }
@@ -129,7 +130,7 @@ export default function VideoPlayer({
               >
                 2Embed
               </button>
-              <button
+              {/* <button
                 onClick={() => setSource("vidstreaming")}
                 className={cn(
                   "px-4 py-1.5 rounded-md text-xs font-bold transition-all",
@@ -150,7 +151,7 @@ export default function VideoPlayer({
                 )}
               >
                 VidCloud
-              </button>
+              </button> */}
               <button
                 onClick={() => setSource("vidsrc_cc")}
                 className={cn(
@@ -162,7 +163,7 @@ export default function VideoPlayer({
               >
                 VidSrc.cc
               </button>
-              <button
+              {/* <button
                 onClick={() => setSource("vidsrc_pm")}
                 className={cn(
                   "px-4 py-1.5 rounded-md text-xs font-bold transition-all",
@@ -172,7 +173,7 @@ export default function VideoPlayer({
                 )}
               >
                 VidSrc.pm
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
